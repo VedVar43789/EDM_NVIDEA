@@ -1,0 +1,116 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\graphicspath{{figures/}{../figures/}}
+
+\title{Steering Diffusion Models: EDM Reproduction and Classifier-Free Guidance Analysis on CIFAR-10 and MNIST}
+\author{Vedant Vardhaan, UCSD DSC 180A Section D32}
+\date{November 6, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+TODO: abstract.
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{Problem}
+TODO
+
+\subsection{Related Work}
+TODO
+
+\subsection{Data}
+TODO
+
+\section{Preliminary Results}
+
+\subsection{CIFAR-10 Generation}
+TODO
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig1_unconditional_cifar10.png}
+  \caption{Unconditional CIFAR-10 samples.}
+  \label{fig:uncond-cifar}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig2_denoiser_trajectory.png}
+  \caption{Denoiser trajectory.}
+  \label{fig:denoiser-trajectory}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig3_conditional_class_grid.png}
+  \caption{Conditional class grid.}
+  \label{fig:cond-class-grid}
+\end{figure}
+
+\subsection{CFG Sweep}
+TODO
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig4_cfg_sweep.png}
+  \caption{CFG sweep of accuracy, FID, and FID\_class versus guidance weight \(w\).}
+  \label{fig:cfg-sweep}
+\end{figure}
+
+\subsection{Small-Subset Training}
+TODO
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig5_loss_fid_snapshots.png}
+  \caption{Loss curve and FID across snapshots for small-subset training.}
+  \label{fig:loss-fid-snapshots}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig6_nearest_training_image.png}
+  \caption{Nearest training image comparison.}
+  \label{fig:nearest-train}
+\end{figure}
+
+\subsection{MNIST Guidance}
+TODO
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig7_mnist_cfg_grid.png}
+  \caption{MNIST CFG grid across guidance weight \(w\).}
+  \label{fig:mnist-cfg}
+\end{figure}
+
+\begin{thebibliography}{9}
+
+\bibitem{karras2022edm}
+Karras, T., Aittala, M., Aila, T., and Laine, S. (2022).
+Elucidating the Design Space of Diffusion-Based Generative Models.
+Advances in Neural Information Processing Systems.
+
+\bibitem{ho2022cfg}
+Ho, J. and Salimans, T. (2022).
+Classifier-Free Diffusion Guidance.
+arXiv:2207.12598.
+
+\bibitem{dhariwal2021guidance}
+Dhariwal, P. and Nichol, A. (2021).
+Diffusion Models Beat GANs on Image Synthesis.
+Advances in Neural Information Processing Systems.
+
+\bibitem{wang2026narfm}
+Wang, Belkin, and Wang (2026).
+NA-RFM.
+TODO: full citation.
+
+\end{thebibliography}
+
+\end{document}

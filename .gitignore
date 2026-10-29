@@ -1,0 +1,49 @@
+# Downloads and run outputs
+downloads/
+outputs/
+
+# Model checkpoints
+*.pt
+*.pth
+*.pkl
+
+# Dataset archives
+*.tar.gz
+*.parquet
+*.npz
+*.zip
+
+# LaTeX build artifacts (report/main.pdf is kept)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Notebooks are kept. Do not add *.ipynb to this file.
+# The compiled report at report/main.pdf is kept. Do not add *.pdf to this file.
