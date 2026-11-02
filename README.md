@@ -59,6 +59,36 @@ Overleaf also compiles the report directly.
 - Ho, J., and Salimans, T. Classifier-Free Diffusion Guidance. NeurIPS 2021 Workshop on Deep Generative Models.
 - CIFAR-10 ResNet-56 classifier: https://github.com/chenyaofo/pytorch-cifar-models
 
+## Contribution Statement: Human and AI
+
+This project was carried out by Vedant Vardhaan with mentorship from Prof. Yusu Wang. AI assistants (primarily Claude) were used throughout as a working tool. The sections below summarize the split; a longer appendix with specific prompts, outputs, and verification steps is included at the end of the report.
+
+**My own work:**
+
+- Running every experiment end to end on Google Colab A100 (CIFAR-10 and MNIST notebooks)
+- Writing the Part 3 and Part 6 cells that the notebooks ask students to fill in
+- Interpreting every figure and table, writing all answers to notebook questions in my own words
+- Deciding what the report should argue and in what order
+- Writing the first-pass of every section (abstract, intro, data, results, takeaways) based on my own reading of the EDM paper and the course slides
+- Taking initiative to set up a meeting with Prof. Yusu Wang this week to discuss the Q2 project direction, which led to the pivot from image steering to continuous diffusion for text generation
+- Reviewing every AI output for accuracy and rewriting anything that did not match what I actually did
+
+**Where AI assisted:**
+
+- Breaking down the assignment PDF and course page into a concrete timeline and deliverable list
+- Producing quick plain-language summaries of the EDM paper, Diffusion-LM, DiffuSeq, and CDCD so I could scope the Q2 reading without reading all four end to end on day one
+- Debugging notebook errors and explaining what cells were doing step by step
+- Restructuring my draft prose into tighter sections, fixing LaTeX issues (citations rendering as "?", figure path mismatches, subcaption layout)
+- Drafting the README structure, the AI use appendix format, and the NOTES.md scaffolding
+- Rephrasing sections of the report into more natural, concise language once I had written the first-pass content
+
+**Verification I did on AI output:**
+
+- Every number in the report (accuracies, FID values, loss values) was copied directly from my own notebook runs, not from an AI estimate
+- Every claim about what EDM, CFG, or the three Q2 papers do was cross-checked against the actual paper or the course slides
+- Every code cell AI drafted was executed before accepting it
+- Every citation key in reference.bib was checked against the real paper on arXiv or the publication venue
+
 ## License
 
 MIT. See `LICENSE`.
