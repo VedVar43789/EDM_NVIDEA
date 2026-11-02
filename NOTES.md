@@ -4,39 +4,38 @@
 
 - 2026-10-28: Repo created, structure set up, notebooks dropped in. Started reading the EDM paper and the Oct 28 slides.
 - 2026-10-29: TA check-in with Ben in HDSI 336.
-- (add dated entries as I work)
+- 2026-11-01: Ran both notebooks end to end on Google Colab A100. CIFAR-10 full run (Parts 1 to 6) took about 50 minutes. MNIST notebook ran on GPU in about 15 minutes. All figures and metrics saved.
+- 2026-11-02: Drafted checkpoint report in Overleaf. Filled in Preliminary Results with actual numbers. Polished README with reproduction commands.
 
 ## CIFAR-10 Notebook: Part 1 Predictions
 
 Record these before running the notebook.
 
 - **What will D(x; sigma) look like at sigma = 80?**
-  
+
   Answer: At sigma = 80 the input is basically pure noise, so the denoiser has almost no signal to work with. The best it can do is output something close to the average CIFAR-10 image, which should look like a gray or brownish blur with no visible object. This matches what the EDM paper shows in Figure 1b and what the course slides showed on MNIST, where the high-noise estimate was an average digit shape.
 
 - **At which noise level do you expect the content of the final image to be settled?**
-  
+
   Answer: I expect the class and rough layout to lock in somewhere around sigma between 1 and 3. That is the range where the EDM paper and the trajectory sketches show the solution curves bending the most. Above that range the estimate is still a blur, and below that range the sampler is mostly adding fine detail and texture rather than changing what the image is of.
 
 ## CIFAR-10 Part 3 Trajectory Questions
 
 1. **At which noise level does the class first show in D(x; sigma)? Is it earlier with w = 4?**
-   
-   Answer: TODO (fill in after running)
+
+   Answer: In the conditional run with w = 1, a recognizable cat shape starts emerging around sigma = 4 to 5, with the ears and face shape becoming clear around sigma = 2. With w = 4, the cat features show up noticeably earlier, around sigma = 7 to 10. CFG amplifies the class direction, so the sampler commits to the target class much sooner in the trajectory.
 
 2. **From which noise level on does the image barely change?**
-   
-   Answer: TODO (fill in after running)
+
+   Answer: The image barely changes below sigma = 0.5 for both runs. By that point the object identity, pose, and coarse texture are locked in, and the remaining steps mostly polish fine detail. This matches my prediction that content locks in between sigma = 1 and 3, with the fine-detail phase below sigma = 1.
 
 3. **How do the w = 4 estimates differ from the w = 1 ones at low noise?**
-   
-   Answer: TODO (fill in after running)
+
+   Answer: At low noise, the w = 4 estimates are sharper, more saturated, and more stereotypically cat-like than the w = 1 estimates. Features like whiskers, eyes, and ear tips are more pronounced. The flip side is less variation across the three samples in w = 4, since CFG squeezes the samples toward a more canonical cat.
 
 ## CIFAR-10 Part 5 CFG Sweep Discussion
 
 **Which FID would I choose (FID over all classes vs FID_class), and what does each measure miss?**
-
-Conceptual framing (fill in actual numbers after Part 5 runs):
 
 For this project I would lean toward FID_class as the primary metric when comparing across w, with the overall FID as a secondary check. Here is why.
 
@@ -46,18 +45,32 @@ FID_class compares each class only against real images of that class. It isolate
 
 Both metrics miss things a human notices right away, like whether the image has consistent lighting, correct object parts, and no weird artifacts. Neither one checks that the requested class is actually shown either, which is why label accuracy sits beside them in the table.
 
-TODO: fill in actual numbers for FID, FID_class, and label accuracy per w after the sweep finishes.
+Actual observed numbers (1,000 images per w):
+
+| w | Label Accuracy | FID | FID_class |
+| --- | --- | --- | --- |
+| 0 | 11.5% | 31.18 | - |
+| 1 | 95.3% | 31.33 | 112.1 |
+| 1.5 | 98.7% | 31.45 | 107.6 |
+| 2 | 98.8% | 33.05 | 108.9 |
+| 3 | 99.5% | 36.06 | 112.5 |
+| 4 | 98.9% | 39.06 | 117.6 |
+
+The sweet spot for FID_class sits at w = 1.5, while overall FID is flat from w = 0 to w = 1.5 and then climbs steadily. Label accuracy saturates near 99 percent by w = 2.
 
 ## CIFAR-10 Part 6 Training Observations
 
 - **Does FID improve or get worse across snapshots on 100 and 1,000 images?**
-  Answer: TODO (fill in after running)
+
+  Answer: FID gets worse across snapshots on both sizes. For the 100-image run, FID rises from 78.7 at step 4000 to 110.8 at step 20000. For the 1,000-image run, FID rises from 90.2 at step 4000 to 129.8 at step 20000. Training loss keeps dropping (0.04 to 0.017 on 100 images, 0.181 to 0.071 on 1000 images), which confirms the loss and FID move in opposite directions here. The model is fitting the data better in terms of loss, but the data it is fitting is so small that fitting it harder makes the generations worse.
 
 - **Evidence of memorization in the nearest training image comparison:**
-  Answer: TODO (fill in after running)
+
+  Answer: The generated samples at the final snapshot sit visibly close to their nearest training images in pixel space. Many of the 100-image samples look like near-duplicates of training images. The 1,000-image run is less obviously memorized visually, but samples still land near training neighbors. This is the behavior the EDM paper predicts for the low-data regime: the optimal denoiser essentially stores and retrieves training examples, so sampling just produces near-copies.
 
 - **How does the CFG grid behavior differ from the pretrained model in Part 5?**
-  Answer: TODO (fill in after running)
+
+  Answer: The small-subset CFG grids are much lower quality than the pretrained Part 5 grids. The classes are harder to recognize at any w, because the network has not seen enough examples of each class to form a general concept. CFG still visibly amplifies whatever class signal exists (samples at higher w are more saturated and committed), but there is less class signal to amplify in the first place, so the effect is muted. The 1,000-image model is better than the 100-image model but still well below the pretrained model.
 
 ## MNIST Part 3 Controlled Comparison
 
@@ -73,23 +86,22 @@ My grid does not support the claim that larger w always helps. By w=5 every 3 lo
 
 Target_match and pixel_spread miss stroke smoothness, closure of loops, and overall legibility. The w=0 samples and the few borderline w=2 digits need a human check, since the classifier is confident even when the digit looks off.
 
-
 ## MNIST Part 4 Architecture Questions
 
 1. **Where does the requested digit enter the UNet (cemb), and where does the time enter?**
-   
+
    Answer: Looking at UNet.forward in mnist_guidance_lab.py, the time t goes through self.temb, a two-layer MLP, and the requested digit y goes through self.cemb, an embedding table with 11 slots (10 digits plus the no-request label). The two are added together into a single conditioning vector e before any convolution runs. Then e is injected into every residual block through the Block.emb linear layer, which adds a per-channel bias to the feature map after the first conv. So the time and the condition enter the same way, at every block, as additive channel-wise shifts.
 
 2. **Is this MNIST model pixel-space or latent-space? In latent diffusion, where would the encoder and decoder sit relative to the sampling loop?**
-   
+
    Answer: This MNIST model is pixel-space. The U-Net takes a 1 by 28 by 28 noisy image directly and outputs a 1 by 28 by 28 clean estimate, with no encoder or decoder around it. In latent diffusion like Stable Diffusion, there is a frozen VAE wrapped around the sampling loop. The encoder sits before the loop, compressing the input image into a smaller latent (for Stable Diffusion, 4 channels at one eighth of the image resolution). The sampling loop then runs entirely in that latent space. After the final denoising step, the decoder sits after the loop, mapping the clean latent back into a full-resolution RGB image.
 
 3. **What representation enters a DiT? Does replacing a U-Net by a transformer alone change the definition of guidance?**
-   
+
    Answer: A Diffusion Transformer takes a sequence of patch tokens as input, the same way Vision Transformers do. The noisy image is split into patches, each patch is flattened and linearly embedded, and the time and class conditioning are added either as extra tokens or through adaptive layer norm. The transformer then processes the sequence of tokens with self-attention. Replacing a U-Net with a transformer does not change what guidance means. CFG still mixes a conditional and an unconditional prediction with the same formula, u + w (c - u). The denoiser is a black box as far as guidance is concerned, so switching the backbone from convolutional to attention-based does not touch the sampler-level math.
 
 4. **For a text prompt, an exact pose, and a masked local edit, name an appropriate input or interface. Which requests can this digit-label model express without new training? Why can we not request a new class by using label 11?**
-   
+
    Answer: Text prompts go through a text encoder like CLIP, with the output feeding into cross-attention layers in the U-Net or DiT. Exact pose is handled by ControlNet or a similar side-network that takes a pose skeleton as an extra conditioning image. Masked local edits are done with inpainting, where the mask and the original image are concatenated to the noisy input channels so the model knows which pixels to keep and which to regenerate.
 
    This MNIST model can only express the 10 digit classes it was trained on, plus the no-request null condition. It cannot handle any of the three richer requests above without new training, because none of its interfaces accept text, poses, or masks. As for label 11, the embedding table self.cemb has exactly 11 slots (10 digits plus the null token at index 10). Index 11 is out of range and would throw an index error. Even if the table were larger, any index beyond 10 was never updated during training, so its vector would be random noise and the sampler would produce garbage. New classes need either retraining with that new label present or a method that does not route through the embedding table at all.
@@ -105,8 +117,13 @@ Target_match and pixel_spread miss stroke smoothness, closure of loops, and over
 
 ## What Worked
 
-- TODO (fill in as I go)
+- Running the CIFAR-10 notebook on an A100 cut Part 5 from the ~45 minute T4 estimate down to ~5 minutes, which freed up time for the training runs in Part 6.
+- Hash-checked downloads on first run meant no restart headaches when the Colab session reconnected.
+- Treating Part 6 as a pipeline validation (expecting memorization) rather than a quality run saved me from worrying about the rising FID numbers.
+- Using the same seed (0) across the trajectory comparisons made the w = 1 vs w = 4 difference easier to see.
 
 ## What Did Not Work
 
-- TODO (fill in as I go)
+- First attempt at Part 5 on a T4 session timed out after Colab disconnected at the 90-minute idle limit. Switching to A100 and keeping the tab active fixed it.
+- Initial MNIST run on CPU took over an hour. Switching DEVICE from "cpu" to "cuda" at the top of the notebook cut it to about 15 minutes.
+- The nearest-training-image comparison was initially confusing because the 1,000-image samples looked blurrier than the 100-image ones. I had to realize this is because 20k updates is enough for the 100-image model to fully memorize but not the 1,000-image model.
