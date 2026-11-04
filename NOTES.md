@@ -22,8 +22,9 @@
 - 2026-10-28: Repo created, structure set up, notebooks dropped in. Started reading the EDM paper and the Oct 28 slides.
 - 2026-10-29: TA check-in with Ben in HDSI 336.
 - 2026-10-30: Meeting with Prof. Yusu Wang this week. Agreed to shift Q2 direction from image steering (NA-RFM reproduction on Oxford-IIIT Pet) to continuous diffusion for text generation. The EDM design-space view still applies: preconditioning, noise schedule, and sampler questions all come back in a continuous embedding space. Starting reading list: Diffusion-LM (Li et al. 2022), DiffuSeq (Gong et al. 2023), CDCD (Dieleman et al. 2022).
-- 2026-11-01: Ran both notebooks end to end on Google Colab A100. CIFAR-10 full run (Parts 1 to 6) took about 50 minutes. MNIST notebook ran on GPU in about 15 minutes. All figures and metrics saved.
+- 2026-11-01: Ran both notebooks end to end on Google Colab A100. CIFAR-10 full run (Parts 1 to 6) took about 50 minutes. MNIST notebook ran on GPU in about 15 minutes. All figures and metrics saved. worked on [NOTES.md.](http://NOTES.md) Also worked on theory questions in the notebook.
 - 2026-11-02: Drafted checkpoint report in Overleaf. Filled in Preliminary Results with actual numbers. Polished README with reproduction commands.
+- 2026-11-03: worked on [AI-USE.md](http://AI-USE.md).
 
 ---
 
@@ -35,7 +36,7 @@ Record these before running the notebook.
 
 - **What will D(x; sigma) look like at sigma = 80?**
 
-  **Answer:** At sigma = 80 the input is basically pure noise, so the denoiser has almost no signal to work with. The best it can do is output something close to the average CIFAR-10 image, which should look like a gray or brownish blur with no visible object. This matches what the EDM paper shows in Figure 1b and what the course slides showed on MNIST, where the high-noise estimate was an average digit shape.
+  **Answer:** At sigma = 80 the input is basically pure noise, so the denoiser has almost no signal to work with. The best it can do is output something close to the average CIFAR-10 image, which should look like a brownish blur with no visible object. This matches what the EDM paper shows in Figure 1b and what the course slides showed on MNIST, where the high-noise estimate was an average digit shape.
 - **At which noise level do you expect the content of the final image to be settled?**
 
   **Answer:** I expect the class and rough layout to lock in somewhere around sigma between 1 and 3. That is the range where the EDM paper and the trajectory sketches show the solution curves bending the most. Above that range the estimate is still a blur, and below that range the sampler is mostly adding fine detail and texture rather than changing what the image is of.
@@ -58,7 +59,7 @@ Record these before running the notebook.
 
 For this project I would lean toward FID_class as the primary metric when comparing across w, with the overall FID as a secondary check. Here is why.
 
-Overall FID compares the full set of 1,000 generated images against all 50,000 CIFAR-10 training images. The problem is that CFG pushes samples toward sharper, more canonical class examples, which lowers the variety inside each class. So the all-class FID gets worse as w grows, but not because the images are worse. It is because the generated distribution has shrunk compared to the real one. That penalty is confounded with the actual effect I care about.
+Overall FID compares the full set of 1000 generated images against all 50,000 CIFAR-10 training images. The problem is that CFG pushes samples toward sharper, more canonical class examples, which lowers the variety inside each class. So the all-class FID gets worse as w grows, but not because the images are worse. It is because the generated distribution has shrunk compared to the real one. That penalty is confounded with the actual effect I care about.
 
 FID_class compares each class only against real images of that class. It isolates whether the samples look like real cats or real cars, independently of class balance or cross-class variety. The downside is that with only 100 images per class, the Gaussian estimate is very noisy, so absolute FID_class values are much higher than published numbers. I can only compare FID_class across w, not with external papers.
 
@@ -79,7 +80,7 @@ The sweet spot for FID_class sits at w = 1.5, while overall FID is flat from w =
 
 ## CIFAR-10 Part 6 Training Observations
 
-- **Does FID improve or get worse across snapshots on 100 and 1,000 images?**
+- **Does FID improve or get worse across snapshots on 100 and 1000 images?**
 
   **Answer:** FID gets worse across snapshots on both sizes. For the 100-image run, FID rises from 78.7 at step 4000 to 110.8 at step 20000. For the 1,000-image run, FID rises from 90.2 at step 4000 to 129.8 at step 20000. Training loss keeps dropping (0.04 to 0.017 on 100 images, 0.181 to 0.071 on 1000 images), which confirms the loss and FID move in opposite directions here. The model is fitting the data better in terms of loss, but the data it is fitting is so small that fitting it harder makes the generations worse.
 - **Evidence of memorization in the nearest training image comparison:**
@@ -87,7 +88,7 @@ The sweet spot for FID_class sits at w = 1.5, while overall FID is flat from w =
   **Answer:** The generated samples at the final snapshot sit visibly close to their nearest training images in pixel space. Many of the 100-image samples look like near-duplicates of training images. The 1,000-image run is less obviously memorized visually, but samples still land near training neighbors. This is the behavior the EDM paper predicts for the low-data regime: the optimal denoiser essentially stores and retrieves training examples, so sampling just produces near-copies.
 - **How does the CFG grid behavior differ from the pretrained model in Part 5?**
 
-  **Answer:** The small-subset CFG grids are much lower quality than the pretrained Part 5 grids. The classes are harder to recognize at any w, because the network has not seen enough examples of each class to form a general concept. CFG still visibly amplifies whatever class signal exists (samples at higher w are more saturated and committed), but there is less class signal to amplify in the first place, so the effect is muted. The 1,000-image model is better than the 100-image model but still well below the pretrained model.
+  **Answer:** The small-subset CFG grids are much lower quality than the pretrained Part 5 grids. The classes are harder to recognize at any w, because the network has not seen enough examples of each class to form a general concept. CFG still visibly amplifies whatever class signal exists (samples at higher w are more saturated and committed), but there is less class signal to amplify in the first place, so the effect is muted. The 1000-image model is better than the 100-image model but still well below the pretrained model.
 
 # MNIST NOTEBOOK QUESTION
 
@@ -120,20 +121,9 @@ Target_match and pixel_spread miss stroke smoothness, closure of loops, and over
 
    **Answer:** Text prompts go through a text encoder like CLIP, with the output feeding into cross-attention layers in the U-Net or DiT. Exact pose is handled by ControlNet or a similar side-network that takes a pose skeleton as an extra conditioning image. Masked local edits are done with inpainting, where the mask and the original image are concatenated to the noisy input channels so the model knows which pixels to keep and which to regenerate.
 
-    This MNIST model can only express the 10 digit classes it was trained on, plus the no-request null condition. It cannot handle any of the three richer requests above without new training, because none of its interfaces accept text, poses, or masks. As for label 11, the embedding table self.cemb has exactly 11 slots (10 digits plus the null token at index 10). Index 11 is out of range and would throw an index error. Even if the table were larger, any index beyond 10 was never updated during training, so its vector would be random noise and the sampler would produce garbage. New classes need either retraining with that new label present or a method that does not route through the embedding table at all.
-
-## Open Questions for Mentor
-
-- **Is the preliminary results section expected inside the Introduction or as its own section in the checkpoint report?**
-- **How polished does the README need to be by Nov 6 compared to Dec 4?**
-- **Is the optional full EDM training run worth attempting given DSMLP GPU time limits? If yes, roughly how many hours should I plan to let it run?**
-- **Any specific attribute Prof. Wang wants me to study for the Q2 direction, or should I propose one?**
-- **Preferred repo structure (notebooks vs scripts, folder layout)?**
-- **For FID with only 1,000 images, is there a specific convention I should document in the report so readers do not compare my numbers to published EDM numbers?**
-
 ## What Worked
 
-- Running the CIFAR-10 notebook on an A100 cut Part 5 from the ~45 minute T4 estimate down to ~5 minutes, which freed up time for the training runs in Part 6.
+- Running the CIFAR-10 notebook on an A100 cut Part 5 from the ~45 minute T4 estimate down to ~5-10 minutes, which freed up time for the training runs in Part 6.
 - Hash-checked downloads on first run meant no restart headaches when the Colab session reconnected.
 - Treating Part 6 as a pipeline validation (expecting memorization) rather than a quality run saved me from worrying about the rising FID numbers.
 - Using the same seed (0) across the trajectory comparisons made the w = 1 vs w = 4 difference easier to see.
@@ -142,4 +132,4 @@ Target_match and pixel_spread miss stroke smoothness, closure of loops, and over
 
 - First attempt at Part 5 on a T4 session timed out after Colab disconnected at the 90-minute idle limit. Switching to A100 and keeping the tab active fixed it.
 - Initial MNIST run on CPU took over an hour. Switching DEVICE from "cpu" to "cuda" at the top of the notebook cut it to about 15 minutes.
-- The nearest-training-image comparison was initially confusing because the 1,000-image samples looked blurrier than the 100-image ones. I had to realize this is because 20k updates is enough for the 100-image model to fully memorize but not the 1,000-image model.
+- The nearest-training-image comparison was initially confusing because the 1000-image samples looked blurrier than the 100-image ones. I had to realize this is because 20k updates is enough for the 100-image model to fully memorize but not the 1,000-image model.
