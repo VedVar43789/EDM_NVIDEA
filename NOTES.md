@@ -37,6 +37,7 @@ Record these before running the notebook.
 - **What will D(x; sigma) look like at sigma = 80?**
 
   **Answer:** At sigma = 80 the input is basically pure noise, so the denoiser has almost no signal to work with. The best it can do is output something close to the average CIFAR-10 image, which should look like a brownish blur with no visible object. This matches what the EDM paper shows in Figure 1b and what the course slides showed on MNIST, where the high-noise estimate was an average digit shape.
+  
 - **At which noise level do you expect the content of the final image to be settled?**
 
   **Answer:** I expect the class and rough layout to lock in somewhere around sigma between 1 and 3. That is the range where the EDM paper and the trajectory sketches show the solution curves bending the most. Above that range the estimate is still a blur, and below that range the sampler is mostly adding fine detail and texture rather than changing what the image is of.
