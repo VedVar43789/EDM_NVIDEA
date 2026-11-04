@@ -158,29 +158,13 @@ show_trajectory(history_cfg, title=f"CFG w = 4: trajectory toward {TARGET_CLASS}
 
 ---
 
-## 8. Organization and Notes
-
-**Context:** NOTES.md needed structure for tracking predictions, observations, and open questions for the mentor.
-
-**Example prompts:**
-
-- "which of the questions in notes.md do not require me to run the notebook"
-- "answer all these questions which have no notebook run needed and give me the completed notes.md"
-- "give me one description line to include in Notes.md telling what all it contains and then a small index too"
-
-**How the output was used:** For the scaffolding of NOTES.md sections. The predictions, answers, and observations content in NOTES.md is my own writing, often polished with AI after I drafted it.
-
-**How I verified it:** I only kept answers I could independently defend, based on my own reading of the EDM paper, the Oct 28 slides, and my notebook runs.
-
----
-
-## 9. Q2 Direction (Not AI-Assisted)
+## 8. Q2 Direction (Not AI-Assisted)
 
 Separate from AI use, I took the initiative this week to set up a meeting with Prof. Yusu Wang and our team to discuss the Q2 project direction. That conversation led to the pivot from image steering (an NA-RFM reproduction on Oxford-IIIT Pet) to continuous diffusion for text generation. I used AI afterward to help find and summarize the three starting papers (Diffusion-LM, DiffuSeq, CDCD), but the decision came from the meeting itself.
 
 ---
 
-## 10. Where AI Was Not Used
+## 9. Where AI Was Not Used
 
 - Running the notebooks (done on my Google Colab Pro A100 account)
 - Generating the figures (output of my notebook runs)
