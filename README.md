@@ -7,12 +7,12 @@
 
 This repository holds the Quarter 1 capstone for DSC 180A. The project studies the EDM paper (Karras et al., NeurIPS 2022) and classifier-free guidance (CFG). Experiments use the NVIDIA pretrained EDM models on CIFAR-10 and a small class-conditional U-Net on MNIST.
 
-Sampling covers the unconditional and class-conditional settings, followed by a sweep over the guidance weight w. Recorded metrics include label accuracy, FID, and per-class FID. Quarter 2 is planned to extend this setup into diffusion steering through a reproduction of noise alignment and recursive feature machine (NA-RFM) steering by Wang, Belkin, and Wang.
+Sampling covers the unconditional and class-conditional settings, followed by a sweep over the guidance weight w. Recorded metrics include label accuracy, FID, and per-class FID. For Quarter 2, after a meeting this week with Prof. Yusu Wang, our team is pivoting from image steering to continuous diffusion for text generation. The EDM design-space view transfers directly to the continuous embedding space used by methods like Diffusion-LM, DiffuSeq, and CDCD.
 
 ## Quick Start
 
 1. Install dependencies: `pip install -r requirements.txt`
-2. Open `notebooks/cifar10_edm_lab.ipynb` on a GPU runtime and run every cell top to bottom (about 1 hour on an NVIDIA A100 using Google Collab Pro).
+2. Open `notebooks/cifar10_edm_lab.ipynb` on a GPU runtime and run every cell top to bottom (about 1 hour on an NVIDIA A100 using Google Colab Pro).
 3. Open `notebooks/guidance_mnist.ipynb` on CPU or GPU and run every cell top to bottom (about 60 to 75 minutes on CPU, 10 to 20 minutes on GPU).
 4. All figures export to `figures/`, metrics write to `results/`, and generated samples cache in `outputs/`.
 5. Compile the report at `report/main.tex` to produce the submission PDF.
@@ -44,13 +44,84 @@ Sampling covers the unconditional and class-conditional settings, followed by a 
 
 **Install:**
 
-- cd report
-- pdflatex main.tex
-- bibtex main
-- pdflatex main.tex
-- pdflatex main.tex
+```
+pip install -r requirements.txt
+```
 
-Overleaf also compiles the report directly.
+**Tested platform:** Google Colab Pro with A100 runtime. DSMLP GPU containers should also work.
+
+## Data
+
+**CIFAR-10:** 50,000 training and 10,000 test images, 32x32 RGB, 10 balanced classes. Auto-downloaded from the Hugging Face mirror on first run. If `cifar-10-python.tar.gz` is already in `downloads/`, that copy is used instead.
+
+**MNIST:** 60,000 training images, 28x28 grayscale, 10 balanced classes. Auto-downloaded by the MNIST notebook on first run.
+
+**Pretrained weights (auto-downloaded, hash-checked):**
+
+- NVIDIA EDM CIFAR-10 unconditional and conditional checkpoints
+- CIFAR-10 Inception features reference
+- CIFAR-10 ResNet-56 classifier (chenyaofo/pytorch-cifar-models)
+- Inception-v3 FID detector
+- Course MNIST U-Net generator and digit evaluator
+
+Total download size: about 720 MB. Interrupted downloads resume on rerun.
+
+## Reproducing Figures and Tables
+
+Every figure and table in `report/main.pdf` is produced by running the two notebooks top to bottom. Save displayed figures into `figures/` as noted.
+
+**CIFAR-10 Notebook (`notebooks/cifar10_edm_lab.ipynb`):**
+
+| Item | Content | Section | Output |
+| --- | --- | --- | --- |
+| Figure 1 | Unconditional CIFAR-10 samples | Part 1 | `figures/uncond_grid.png` |
+| Figure 2 | Denoiser trajectory, unconditional | Part 1 | `figures/uncond_trajectory.png` |
+| Figure 3 | Conditional samples, one class per row | Part 2 | `figures/cond_grid.png` |
+| Figure 4 | CFG trajectory, w=1 vs w=4 | Part 3, "Your turn" cell | `figures/cfg_trajectory_w1.png`, `figures/cfg_trajectory_w4.png` |
+| Table 1 | CFG metrics per w | Part 5 | `results/cfg_sweep_n1000.json` |
+| Figure 5 | CFG sweep plot: accuracy, FID, FID_class vs w | Part 5 | `figures/cfg_sweep.png` |
+| Figure 6 | Training loss and FID across snapshots | Part 6 | `figures/training_loss_fid.png` |
+| Figure 7 | Nearest training image comparison | Part 6 | `figures/nearest_100.png`, `figures/nearest_1000.png` |
+
+**MNIST Notebook (`notebooks/guidance_mnist.ipynb`):**
+
+| Item | Content | Section | Output |
+| --- | --- | --- | --- |
+| Figure 8 | MNIST CFG grid across w (target digit 3, seed 42) | Part 3, "Your comparison" cell | `figures/mnist_your_w_sweep.png` |
+| Table 2 | MNIST target match, confidence, NFE per w | Part 3 | Printed inline, recorded in `NOTES.md` |
+
+**Important:** the MNIST notebook writes a helper file `mnist_guidance_lab.py` next to the notebook. Run cells top to bottom so this import succeeds.
+
+## Observed Results Reference
+
+CIFAR-10 CFG sweep (1,000 images per w, FID against the full 50,000-image CIFAR-10 reference):
+
+| w | Label Accuracy | FID | FID_class |
+| --- | --- | --- | --- |
+| 0 | 11.5% | 31.18 | - |
+| 1 | 95.3% | 31.33 | 112.1 |
+| 1.5 | 98.7% | 31.45 | 107.6 |
+| 2 | 98.8% | 33.05 | 108.9 |
+| 3 | 99.5% | 36.06 | 112.5 |
+| 4 | 98.9% | 39.06 | 117.6 |
+
+Published EDM FIDs (1.97 unconditional, 1.79 class-conditional) use 50,000 samples per setting and are not directly comparable to these.
+
+## Report
+
+Source: `report/main.tex`. Compiled PDF: `report/main.pdf`.
+
+To compile locally:
+
+```
+cd report
+pdflatex main.tex
+bibtex main
+pdflatex main.tex
+pdflatex main.tex
+```
+
+Overleaf compiles the report directly without the local commands.
 
 ## References
 
@@ -87,7 +158,7 @@ This project was carried out by Vedant Vardhaan with mentorship from Prof. Yusu 
 - Every number in the report (accuracies, FID values, loss values) was copied directly from my own notebook runs, not from an AI estimate
 - Every claim about what EDM, CFG, or the three Q2 papers do was cross-checked against the actual paper or the course slides
 - Every code cell AI drafted was executed before accepting it
-- Every citation key in reference.bib was checked against the real paper on arXiv or the publication venue
+- Every citation key in `reference.bib` was checked against the real paper on arXiv or the publication venue
 
 ## License
 
