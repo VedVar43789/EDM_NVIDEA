@@ -169,7 +169,7 @@ Separate from AI use, I took the initiative this week to set up a meeting with P
 - Running the notebooks (done on my Google Colab Pro A100 account)
 - Generating the figures (output of my notebook runs)
 - Interpreting what the results mean
-- Made [NOTES.md](http://NOTES.md) to trach all my ork and progress, along with answers to some of the notebook questions
+- Made [NOTES.md](http://NOTES.md) to trach all my work and progress, along with answers to some of the notebook questions
 - Making the first draft of the report in raw language
 - Re-reading each file and report for any errors
 - The meeting with Prof. Wang on the Q2 direction
